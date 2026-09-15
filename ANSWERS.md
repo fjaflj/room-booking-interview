@@ -1,5 +1,9 @@
 # 作业问题简答
 
+## 题 1：预约时间窗口规则
+
+按顺序判断：任一端点缺失返回 `MISSING_BOUNDARY`；否则结束不晚于开始返回 `END_NOT_AFTER_START`；再检查时长，短于 30 分钟或长于 120 分钟返回 `DURATION_OUT_OF_RANGE`，其余为 `VALID`。因此 30 和 120 分钟都合法，29 和 121 分钟越界。例如 09:00–09:29 应判为 `DURATION_OUT_OF_RANGE`；09:00–09:00 虽然时长也不合法，但优先判为 `END_NOT_AFTER_START`。
+
 ## 题 2：缺失预约的 HTTP 响应
 
 根因：预约查询按 `bookingId` 和 `roomId` 联合查找；没有匹配记录时，服务抛出 `BookingNotFoundException`。异常处理器虽已使用 `BOOKING_NOT_FOUND` 错误码，却误将状态映射为 500。修正后返回 404，并保持错误响应为结构化 JSON，不返回异常类名或调用栈。
