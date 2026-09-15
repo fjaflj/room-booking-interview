@@ -6,6 +6,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,5 +37,16 @@ class BookingApiTest {
                 .andExpect(jsonPath("$.code").value("ROOM_NOT_FOUND"))
                 .andExpect(jsonPath("$.path")
                         .value("/rooms/room-missing/bookings/booking-1011"));
+    }
+
+    @Test
+    void returnsNotFoundForMissingBookingWithoutExposingExceptionDetails() throws Exception {
+        mockMvc.perform(get("/rooms/room-101/bookings/booking-missing"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("BOOKING_NOT_FOUND"))
+                .andExpect(jsonPath("$.path").value("/rooms/room-101/bookings/booking-missing"))
+                .andExpect(content().string(not(containsString("BookingNotFoundException"))))
+                .andExpect(content().string(not(containsString(" at com.fwdrobo"))));
     }
 }
